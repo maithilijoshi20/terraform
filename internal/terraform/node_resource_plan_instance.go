@@ -269,7 +269,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if diags.HasErrors() {
 			// Pre-Diff error hook
 			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, diags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
 			}))
 			return diags
 		}
@@ -285,7 +285,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if diags.HasErrors() {
 			// Pre-Diff error hook
 			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, diags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
 			}))
 			return diags
 		}
@@ -295,7 +295,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if diags.HasErrors() {
 			// Pre-Diff error hook
 			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, diags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
 			}))
 			return diags
 		}
@@ -340,7 +340,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if initialPlanDiags.HasErrors() {
 			// Pre-Diff error hook
 			initialPlanDiags = initialPlanDiags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, initialPlanDiags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, initialPlanDiags.Err())
 			}))
 			return initialPlanDiags
 		}
@@ -415,7 +415,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if diags.HasErrors() {
 			// Pre-Diff error hook
 			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, diags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
 			}))
 			return diags
 		}
@@ -429,7 +429,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if diags.HasErrors() {
 			// Pre-Diff error hook
 			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, diags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
 			}))
 			return diags
 		}
@@ -443,7 +443,7 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 		if diags.HasErrors() {
 			// Pre-Diff error hook
 			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, cty.DynamicVal, cty.DynamicVal, diags.Err())
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
 			}))
 			return diags
 		}
