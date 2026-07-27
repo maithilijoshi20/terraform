@@ -45,8 +45,8 @@ type NodePlannableResourceInstance struct {
 	forceReplace bool
 
 	// refreshOnChange indicates that we should run an initial plan for the resource instance prior to refreshing:
-	//   - If the plan returns a no-op, then the resource won't be refreshed.
-	//   - If the plan returns a change (anything but no-op), the resource will be refreshed and another plan will be run.
+	//   - If the plan indicates a no-op, then the no-op plan will be returned without refreshing the resource.
+	//   - If the plan indicates a change (anything but no-op), then the resource will be refreshed and another plan will be run.
 	refreshOnChange bool
 
 	// replaceTriggeredBy stores references from replace_triggered_by which
@@ -324,15 +324,17 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 
 	repData := EvalDataForInstanceKey(n.ResourceInstanceAddr().Resource.Key, forEach)
 
-	// add this instance to n.forceReplace if replacement is triggered by
-	// another change
-	diags = diags.Append(n.replaceTriggered(ctx, repData))
-	if diags.HasErrors() {
-		// Pre-Diff error hook
-		diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
-			return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
-		}))
-		return diags
+	if !n.skipPlanChanges {
+		// add this instance to n.forceReplace if replacement is triggered by
+		// another change
+		diags = diags.Append(n.replaceTriggered(ctx, repData))
+		if diags.HasErrors() {
+			// Pre-Diff error hook
+			diags = diags.Append(ctx.Hook(func(h Hook) (HookAction, error) {
+				return h.PreDiff(n.HookResourceIdentity(), addrs.NotDeposed, diags.Err())
+			}))
+			return diags
+		}
 	}
 
 	preRefreshPlanExecuted := false

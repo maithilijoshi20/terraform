@@ -77,8 +77,8 @@ type PlanGraphBuilder struct {
 	skipPlanChanges bool
 
 	// refreshOnChange indicates that we should run an initial plan for each resource prior to refreshing:
-	//   - If the plan returns a no-op, then the resource won't be refreshed.
-	//   - If the plan returns a change (anything but no-op), the resource will be refreshed and another plan will be run.
+	//   - If the plan indicates a no-op, then the no-op plan will be returned without refreshing the resource.
+	//   - If the plan indicates a change (anything but no-op), then the resource will be refreshed and another plan will be run.
 	refreshOnChange bool
 
 	ConcreteProvider                ConcreteProviderNodeFunc
