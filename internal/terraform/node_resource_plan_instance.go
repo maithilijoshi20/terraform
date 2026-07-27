@@ -340,14 +340,9 @@ func (n *NodePlannableResourceInstance) managedResourceExecute(ctx EvalContext) 
 	preRefreshPlanExecuted := false
 
 	// The practitioner indicated that they don't want to refresh the instance if the configuration
-	// provided doesn't produce a change on it's own, which we will confirm by running an initial plan
-	// prior to refreshing the state. If that plan is a no-op we skip refreshing the state before the normal plan runs.
-	//
-	// In -refresh-on-change mode we will always run two plans, where the first plan will suppress any side effects (hooks/preconditions/etc).
-	// This is done because hooks in pre/post plan receive the prior state and we should not call those hooks multiple times with
-	// different state values.
+	// provided doesn't produce a change on it's own, which we will confirm by running an initial plan.
+	// If that plan is a no-op we report that plan and return without refreshing the state.
 	if n.refreshOnChange && !schemaVersionUpgraded && !importing {
-
 		// Evaluate preconditions before we do the initial plan. This can only be done once, so future plan calls will
 		// use the "preRefreshPlanExecuted" variable to prevent the (*NodeAbstractResourceInstance).plan method from evaluating
 		// preconditions again.
