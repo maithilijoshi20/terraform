@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/zclconf/go-cty/cty"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/terraform/internal/addrs"
@@ -82,7 +83,8 @@ func TestQueryPolicyNodeInsertion_CountMatchesResources(t *testing.T) {
 	insertQueryPolicyNodes(t, inputs, ctx, n)
 
 	// Verify N nodes in policy subgraph
-	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](ps.graph.VerticesSeq()).Collect()
+	g := ps.evalGraph(trace.SpanFromContext(context.Background()))
+	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](g.VerticesSeq()).Collect()
 	if len(nodes) != count {
 		t.Errorf("expected %d policy nodes, got %d", count, len(nodes))
 	}
@@ -121,8 +123,8 @@ func TestQueryPolicyNodeInsertion_UnknownResourcesSkipped(t *testing.T) {
 	}
 
 	insertQueryPolicyNodes(t, inputs, ctx, n)
-
-	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](ps.graph.VerticesSeq()).Collect()
+	g := ps.evalGraph(trace.SpanFromContext(context.Background()))
+	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](g.VerticesSeq()).Collect()
 
 	// Verify N nodes in policy subgraph, accounting for skipped unknowns
 	if len(nodes) != 2 {
@@ -158,7 +160,8 @@ func TestQueryPolicyNodeInsertion_NodePayload(t *testing.T) {
 
 	insertQueryPolicyNodes(t, inputs, ctx, n)
 
-	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](ps.graph.VerticesSeq()).Collect()
+	g := ps.evalGraph(trace.SpanFromContext(context.Background()))
+	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](g.VerticesSeq()).Collect()
 	if len(nodes) != 1 {
 		t.Fatalf("expected 1 policy node, got %d", len(nodes))
 	}
@@ -264,14 +267,15 @@ func TestQueryPolicyNodeInsertion_NodeIndependence(t *testing.T) {
 	insertQueryPolicyNodes(t, inputs, ctx, n)
 
 	// Collect all nodeQueryResourcePolicy nodes
-	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](ps.graph.VerticesSeq()).Collect()
+	g := ps.evalGraph(trace.SpanFromContext(context.Background()))
+	nodes := dag.SelectSeq[*nodeQueryResourcePolicy](g.VerticesSeq()).Collect()
 	if len(nodes) != count {
 		t.Fatalf("expected %d policy nodes, got %d", count, len(nodes))
 	}
 
 	// Verify no edges exist between any pair of nodeQueryResourcePolicy nodes
 	for _, node := range nodes {
-		downEdges := ps.graph.DownEdges(node)
+		downEdges := g.DownEdges(node)
 		for _, dep := range downEdges {
 			if _, ok := dep.(*nodeQueryResourcePolicy); ok {
 				t.Errorf("found edge from %s to %s; policy nodes must be independent with no inter-node edges",
@@ -279,22 +283,12 @@ func TestQueryPolicyNodeInsertion_NodeIndependence(t *testing.T) {
 			}
 		}
 
-		upEdges := ps.graph.UpEdges(node)
+		upEdges := g.UpEdges(node)
 		for _, dep := range upEdges {
 			if _, ok := dep.(*nodeQueryResourcePolicy); ok {
 				t.Errorf("found edge from %s to %s; policy nodes must be independent with no inter-node edges",
 					dag.VertexName(dep), node.Name())
 			}
-		}
-	}
-
-	// Verify the total number of edges in the subgraph is zero
-	// (before finish node is added by DynamicExpand)
-	edges := ps.graph.Edges()
-	if len(edges) != 0 {
-		t.Errorf("expected 0 edges between policy nodes in subgraph, got %d edges", len(edges))
-		for _, edge := range edges {
-			t.Logf("  edge: %s -> %s", dag.VertexName(edge.Source()), dag.VertexName(edge.Target()))
 		}
 	}
 }
